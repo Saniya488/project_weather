@@ -2,9 +2,11 @@ async function getWeather(location = null, selectedCity = null) {
     const cityInput = document.getElementById('city-input');
     let input = (cityInput && typeof cityInput.value === 'string' ? cityInput.value.trim() : '') || location;
     const originalInput = input || 'Current Location';
-    const apiKey = '04a25b6616cd9d650bd9771e7862eb18'; // For a professional project, mention that this key would be stored on a backend server.
-    const geocodingUrl = `http://api.openweathermap.org/geo/1.0/direct?q=${encodeURIComponent(input)}&limit=5&appid=${apiKey}`;
-    const reverseGeocodingUrl = `http://api.openweathermap.org/geo/1.0/reverse?lat={lat}&lon={lon}&limit=5&appid=${apiKey}`;
+    // NOTE: The API key is exposed in client-side code. For a professional project, this key should be stored on a backend server.
+    const apiKey = '04a25b6616cd9d650bd9771e7862eb18'; 
+    // FIX: Changed http to https for all geocoding URLs to avoid Mixed Content errors on deployed HTTPS sites.
+    const geocodingUrl = `https://api.openweathermap.org/geo/1.0/direct?q=${encodeURIComponent(input)}&limit=5&appid=${apiKey}`;
+    const reverseGeocodingUrl = `https://api.openweathermap.org/geo/1.0/reverse?lat={lat}&lon={lon}&limit=5&appid=${apiKey}`;
     const airQualityUrl = `https://api.openweathermap.org/data/2.5/air_pollution?lat={lat}&lon={lon}&appid=${apiKey}`;
     const forecastUrl = `https://api.openweathermap.org/data/2.5/forecast?lat={lat}&lon={lon}&appid=${apiKey}&units=metric`;
 
@@ -209,7 +211,7 @@ async function getWeather(location = null, selectedCity = null) {
         const now = new Date();
         const currentHour = now.getHours();
         const timeContext = currentHour < 12 ? 'Morning' : currentHour < 17 ? 'Afternoon' : currentHour < 20 ? 'Evening' : 'Night';
-        document.getElementById('time-context').textContent = `${timeContext} Weather, ${now.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })} (Updated: ${now.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', timeZoneName: 'short' })})`;
+        document.getElementById('time-context').textContent = `${timeContext} Weather, ${now.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })} (Updated: ${now.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', timeZoneName: 'short' })}`;
 
         const weatherMain = weatherDataFromAPI.weather[0].description.toLowerCase().includes('rain') || weatherDataFromAPI.weather[0].description.toLowerCase().includes('shower') ? 'rain' : 
                             weatherDataFromAPI.weather[0].description.toLowerCase().includes('cloud') ? 'clouds' : 'clear';
@@ -287,7 +289,8 @@ async function fetchSuggestions(query) {
     if (!query) return [];
     const apiKey = '04a25b6616cd9d650bd9771e7862eb18'; 
     try {
-        const response = await fetch(`http://api.openweathermap.org/geo/1.0/direct?q=${encodeURIComponent(query)}&limit=5&appid=${apiKey}`);
+        // FIX: Changed http to https for the suggestions API call
+        const response = await fetch(`https://api.openweathermap.org/geo/1.0/direct?q=${encodeURIComponent(query)}&limit=5&appid=${apiKey}`);
         if (!response.ok) {
             console.error('Error fetching suggestions:', response.statusText);
             return [];
